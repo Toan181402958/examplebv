@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "949630575756",
+    "firebase_url": "https://svm-project-d922e-default-rtdb.firebaseio.com",
+    "project_id": "svm-project-d922e",
+    "storage_bucket": "svm-project-d922e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:949630575756:android:2fd6948c15e6322ce807a9",
+        "android_client_info": {
+          "package_name": "com.examplebv"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "949630575756-g9bfsrjj65gmelfb999dvan9onfba4oe.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyChQdbkDVoLwSL0YRy0DRvYhYhfAy8k5aQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "949630575756-g9bfsrjj65gmelfb999dvan9onfba4oe.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
