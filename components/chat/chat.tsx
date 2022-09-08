@@ -1,4 +1,3 @@
-import BottomSheet, {BottomSheetView} from '@gorhom/bottom-sheet';
 import Clipboard from '@react-native-clipboard/clipboard';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
@@ -39,6 +38,19 @@ import messages1, {messageDefault} from './data';
 import {message2} from './data2';
 import {IMessage, UserSeen} from './model';
 import {RootStackParams} from './test-chat';
+import Animated1, {
+  Easing,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
+import {
+  Gesture,
+  GestureDetector,
+  GestureHandlerRootView,
+} from 'react-native-gesture-handler';
+import BottomSheet from './components/viewBottomSheet';
+import viewInputToolBar from './components/viewInputToolBar';
 
 const {height: SCREEN_HEIGHT} = Dimensions.get('window');
 
@@ -80,9 +92,18 @@ const Chat = () => {
   const [isPressSeen, setIsPressSeen] = useState('');
   const [showModal, setShowModal] = useState(false);
   const animBottomSheet = useRef(new Animated.Value(0)).current;
-  const sheetRef = useRef<BottomSheet>(null);
+  const translateY = useSharedValue(0);
+  const animMoreEmoji = useRef(new Animated.Value(0)).current;
+  const animIconMoreEmoji = useRef(new Animated.Value(0)).current;
 
-  const snapPoints = ['10%', '50%', '90%'];
+  const animTouchBottomSheet = useRef(new Animated.Value(0)).current;
+
+  const topMoreEmoji = useSharedValue(SCREEN_HEIGHT);
+  const styleMoreEmoji = useAnimatedStyle(() => {
+    return {
+      top: topMoreEmoji.value,
+    };
+  });
 
   const handleFooter = () => {
     Animated.timing(animFooter, {
@@ -121,6 +142,11 @@ const Chat = () => {
       duration: 10,
       useNativeDriver: false,
     }).start();
+    Animated.timing(animIconMoreEmoji, {
+      toValue: 20,
+      duration: 10,
+      useNativeDriver: false,
+    }).start();
   };
 
   const handleCloseView = () => {
@@ -137,6 +163,11 @@ const Chat = () => {
     Animated.timing(animOptionPhone, {
       toValue: 0,
       duration: 200,
+      useNativeDriver: false,
+    }).start();
+    Animated.timing(animIconMoreEmoji, {
+      toValue: 0,
+      duration: 10,
       useNativeDriver: false,
     }).start();
   };
@@ -250,7 +281,7 @@ const Chat = () => {
     return (
       <InputToolbar
         containerStyle={{
-          backgroundColor: '#FFFFFF',
+          backgroundColor: 'pink',
           borderTopColor: '#FFFFFF',
         }}
         {...input}></InputToolbar>
@@ -317,196 +348,205 @@ const Chat = () => {
   //handle click more emoji
   const handlePressMoreEmoji = () => {
     console.log('click more emoji');
+    Animated.timing(animTouchBottomSheet, {
+      toValue: SCREEN_HEIGHT,
+      duration: 10,
+      useNativeDriver: false,
+    }).start();
+
+    topMoreEmoji.value = withTiming(SCREEN_HEIGHT / 2, {duration: 300});
+  };
+
+  const handleCloseMoreEmoji = () => {
+    Animated.timing(animTouchBottomSheet, {
+      toValue: 0,
+      duration: 300,
+      useNativeDriver: false,
+    }).start();
+    topMoreEmoji.value = withTiming(SCREEN_HEIGHT, {duration: 300});
   };
 
   return (
-    <View style={{flex: 1}}>
-      {viewTabBar(clickExample, clickCamera, setMessages)}
-      <GiftedChat
-        ref={giftedChatref}
-        messages={messages}
-        onSend={messages1 => {
-          onSend(messages1);
-        }}
-        user={{
-          _id: 1,
-        }}
-        // renderMessage={props => renderMessage(props, listtest)}
-        renderInputToolbar={input => renderInputToolbar(input)}
-        renderActions={action => renderActions(action)}
-        renderSend={send => renderSend(send)}
-        renderComposer={props => renderComposer(props)}
-        renderLoading={() => renderLoading()}
-        loadEarlier={false}
-        renderLoadEarlier={renderLoadEarlier}
-        // renderMessageText={props => (
-        //   <RenderMessageText
-        //     props={props}
-        //     handleOnpressMessageText={handleOnpressMessageText}
-        //     handleOnLongPress={handleOnLongPressMessageText}
-        //   />
-        // )}
-        renderBubble={props => (
-          <RenderBubble
-            props={props}
-            messages={messages}
-            listtest={listtest}
-            refBubble={refBubble}
-            handleChild={handleOnpressMessageText}
-            setlisttest={setlisttest}
-            handleOnLongPress={handleOnLongPressMessageText}
-            replyMessage={replyMessage}
-            handleOnPressImageUserSeen={handleOnPressImageUserSeen}
-            isPressSeen={isPressSeen}
-          />
-        )}
-        renderChatFooter={() => (
-          <RenderChatFooter
-            replyMessage={replyMessage}
-            animFooter={animFooter}
-            animImgClose={animImgClose}
-            handleHideChatFooter={handleHideFooter}
-          />
-        )}
-        renderDay={renderDay}
-        renderAvatar={renderAvatar}
-        isCustomViewBottom
-        messagesContainerStyle={{backgroundColor: GIFTED_CHAT_BACKGROUND}}
-        maxComposerHeight={100}
-        isTyping
-        renderAvatarOnTop
-        infiniteScroll
-        onLongPress={(context: any, message: IMessage) => {
-          console.log('onlongpress', context, 'message: ', message);
-          // handleSizeBottomBar(message);
-          // setReplyMessage(message);
-        }}
-        parsePatterns={linkStyle => [
-          //Type: Link, phone, email
-          {
-            pattern: /@(\w+)/,
-            style: linkStyle,
-            onPress: (tag: any, index: any) =>
-              console.log(`Pressed on hashtag: ${tag}`, index),
-          },
-          {
-            type: 'url',
-            onPress: (url: any) => onPressTextLink(url, 'url'),
-            style: styles.textHighlight,
-          },
-          {
-            type: 'phone',
-            onPress: (url: any) => onPressTextLink(url, 'phone'),
-            style: styles.textHighlight,
-          },
-          {
-            type: 'email',
-            onPress: (url: any) => onPressTextLink(url, 'email'),
-            style: styles.textHighlight,
-          },
-        ]}
-        listViewProps={{
-          //onScroll gifted chat
-          onScroll: (e: any) => {
-            if (e.nativeEvent.contentOffset.y > 30) {
-              handleShowScroll();
-            } else {
-              handleHideScroll();
-            }
-            if (
-              e.nativeEvent.contentSize.height -
-                e.nativeEvent.layoutMeasurement -
-                80 <=
-              e.nativeEvent.contentOffset.y
-            ) {
-              setHideLoadEarlier(true);
-            } else {
-              setHideLoadEarlier(false);
-            }
-            // console.log('on scroll: ', e.nativeEvent);
-          },
-          scrollEventThrottle: 16,
-        }}
-      />
-      <Animated.View
-        style={{
-          opacity: animScroll,
-          height: 40,
-          width: 40,
-          borderRadius: 20,
-          backgroundColor: 'red',
-          position: 'absolute',
-          bottom: 100,
-          right: 10,
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}>
-        <TouchableOpacity onPress={() => handleScrollCustom()}>
-          <Image
-            style={{height: 35, width: 35}}
-            source={require('./assets/icon/scroll.png')}
-          />
-        </TouchableOpacity>
-      </Animated.View>
-      <Animated.View
-        style={{
-          flex: 1,
-          position: 'absolute',
-          bottom: 0,
-          height: animBottom.interpolate({
-            inputRange: [0, 1],
-            outputRange: ['0%', '100%'],
-          }),
-          width: '100%',
-          flexDirection: 'column-reverse',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}>
-        <TouchableOpacity
-          onPress={() => handleCloseView()}
-          style={{
-            position: 'absolute',
-            height: '100%',
-            width: '100%',
-          }}></TouchableOpacity>
-        {/*view option phone */}
-        <ViewEmoji
-          index={0}
-          showModal={showModal}
-          handlePressEmoji={handlePressEmoji}
-          handlePressMoreEmoji={handlePressMoreEmoji}
+    <GestureHandlerRootView style={{flex: 1}}>
+      <View style={{flex: 1}}>
+        {viewTabBar(clickExample, clickCamera, setMessages)}
+        <GiftedChat
+          ref={giftedChatref}
+          messages={messages}
+          onSend={messages1 => {
+            onSend(messages1);
+          }}
+          user={{
+            _id: 1,
+          }}
+          // renderMessage={props => renderMessage(props, listtest)}
+          renderInputToolbar={input => viewInputToolBar(input)}
+          renderActions={action => renderActions(action)}
+          renderSend={send => renderSend(send)}
+          renderComposer={props => renderComposer(props)}
+          renderLoading={() => renderLoading()}
+          loadEarlier={false}
+          renderLoadEarlier={renderLoadEarlier}
+          // renderMessageText={props => (
+          //   <RenderMessageText
+          //     props={props}
+          //     handleOnpressMessageText={handleOnpressMessageText}
+          //     handleOnLongPress={handleOnLongPressMessageText}
+          //   />
+          // )}
+          renderBubble={props => (
+            <RenderBubble
+              props={props}
+              messages={messages}
+              listtest={listtest}
+              refBubble={refBubble}
+              handleChild={handleOnpressMessageText}
+              setlisttest={setlisttest}
+              handleOnLongPress={handleOnLongPressMessageText}
+              replyMessage={replyMessage}
+              handleOnPressImageUserSeen={handleOnPressImageUserSeen}
+              isPressSeen={isPressSeen}
+            />
+          )}
+          renderChatFooter={() => (
+            <RenderChatFooter
+              replyMessage={replyMessage}
+              animFooter={animFooter}
+              animImgClose={animImgClose}
+              handleHideChatFooter={handleHideFooter}
+            />
+          )}
+          renderDay={renderDay}
+          renderAvatar={renderAvatar}
+          isCustomViewBottom
+          messagesContainerStyle={{backgroundColor: GIFTED_CHAT_BACKGROUND}}
+          maxComposerHeight={100}
+          isTyping
+          renderAvatarOnTop
+          infiniteScroll
+          onLongPress={(context: any, message: IMessage) => {
+            console.log('onlongpress', context, 'message: ', message);
+            // handleSizeBottomBar(message);
+            // setReplyMessage(message);
+          }}
+          parsePatterns={linkStyle => [
+            //Type: Link, phone, email
+            {
+              pattern: /@(\w+)/,
+              style: linkStyle,
+              onPress: (tag: any, index: any) =>
+                console.log(`Pressed on hashtag: ${tag}`, index),
+            },
+            {
+              type: 'url',
+              onPress: (url: any) => onPressTextLink(url, 'url'),
+              style: styles.textHighlight,
+            },
+            {
+              type: 'phone',
+              onPress: (url: any) => onPressTextLink(url, 'phone'),
+              style: styles.textHighlight,
+            },
+            {
+              type: 'email',
+              onPress: (url: any) => onPressTextLink(url, 'email'),
+              style: styles.textHighlight,
+            },
+          ]}
+          listViewProps={{
+            //onScroll gifted chat
+            onScroll: (e: any) => {
+              if (e.nativeEvent.contentOffset.y > 30) {
+                handleShowScroll();
+              } else {
+                handleHideScroll();
+              }
+              if (
+                e.nativeEvent.contentSize.height -
+                  e.nativeEvent.layoutMeasurement -
+                  80 <=
+                e.nativeEvent.contentOffset.y
+              ) {
+                setHideLoadEarlier(true);
+              } else {
+                setHideLoadEarlier(false);
+              }
+              // console.log('on scroll: ', e.nativeEvent);
+            },
+            scrollEventThrottle: 16,
+          }}
         />
-        <ViewActionBottom
-          animBotBar={animBotBar}
-          handleCloseView={handleCloseView}
-          handleReply={handleReply}
-        />
-        {/* <BottomSheet
-          ref={sheetRef}
-          snapPoints={snapPoints}
-          // enablePanDownToClose={true}
-        >
-          <BottomSheetView>
-            <Text>Bottom sheet</Text>
-          </BottomSheetView>
-        </BottomSheet> */}
-        {/* <Animated.View
+        <Animated.View
           style={{
-            height: SCREEN_HEIGHT,
-            width: '100%',
-            backgroundColor: '#FFFFFF',
+            opacity: animScroll,
+            height: 40,
+            width: 40,
+            borderRadius: 20,
+            backgroundColor: 'red',
             position: 'absolute',
-            borderTopLeftRadius: 15,
-            borderTopRightRadius: 15,
-            borderWidth: 0.5,
+            bottom: 100,
+            right: 10,
             alignItems: 'center',
-            paddingTop: 10,
-            top: SCREEN_HEIGHT / 1,
+            justifyContent: 'center',
           }}>
-          <View style={{height: 3, width: 40, backgroundColor: '#000000'}} />
-        </Animated.View> */}
-      </Animated.View>
-    </View>
+          <TouchableOpacity onPress={() => handleScrollCustom()}>
+            <Image
+              style={{height: 35, width: 35}}
+              source={require('./assets/icon/scroll.png')}
+            />
+          </TouchableOpacity>
+        </Animated.View>
+        <Animated.View
+          style={{
+            flex: 1,
+            position: 'absolute',
+            bottom: 0,
+            height: animBottom.interpolate({
+              inputRange: [0, 1],
+              outputRange: ['0%', '100%'],
+            }),
+            width: '100%',
+            flexDirection: 'column-reverse',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
+          <TouchableOpacity
+            onPress={() => handleCloseView()}
+            style={{
+              position: 'absolute',
+              height: '100%',
+              width: '100%',
+            }}></TouchableOpacity>
+          <ViewEmoji
+            index={0}
+            showModal={showModal}
+            animIconMoreEmoji={animIconMoreEmoji}
+            handlePressEmoji={handlePressEmoji}
+            handlePressMoreEmoji={handlePressMoreEmoji}
+          />
+          {/* <ViewActionBottom
+            animBotBar={animBotBar}
+            handleCloseView={handleCloseView}
+            handleReply={handleReply}
+          /> */}
+          <Animated.View
+            style={{
+              width: '100%',
+              height: animTouchBottomSheet,
+            }}>
+            <TouchableOpacity
+              onPress={() => handleCloseMoreEmoji()}
+              style={{height: '100%', width: '100%'}}
+            />
+            <BottomSheet
+              animMoreEmoji={animMoreEmoji}
+              topMoreEmoji={styleMoreEmoji}
+              handleCloseMoreEmoji={handleCloseMoreEmoji}
+            />
+          </Animated.View>
+        </Animated.View>
+      </View>
+    </GestureHandlerRootView>
   );
 };
 
@@ -563,6 +603,12 @@ const styles = StyleSheet.create({
   textOptionPhone: {
     fontSize: 16,
     fontWeight: '600',
+  },
+  touchGesture: {
+    flex: 1,
+    backgroundColor: 'grey',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 

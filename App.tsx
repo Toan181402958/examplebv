@@ -8,6 +8,7 @@ import TestDateTimeScreen from './components/datepicker/test-datetime';
 import TestScrollViewInput from './components/scrollViewInput/test-scrollView-Input';
 import TestTable from './components/table/test-table';
 import Test_Chat from './components/test_chat/test_chat';
+import Test_Reanimated from './components/test_reanimated/test_reanimated';
 import TestViewFile from './components/viewFile/test-viewFile';
 
 const App = () => {
@@ -26,6 +27,7 @@ const App = () => {
     <TestChat />
     // <Test_Chat />
     // <TestScrollViewInput />
+    // <Test_Reanimated />
   );
 };
 

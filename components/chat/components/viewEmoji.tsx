@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  Animated,
   FlatList,
   Image,
   StyleSheet,
@@ -13,6 +14,7 @@ import {listEmoji} from '../dataEmoji';
 interface EmojiProps {
   index: number;
   showModal: boolean;
+  animIconMoreEmoji: any;
   handlePressEmoji: (e: number) => void;
   handlePressMoreEmoji: () => void;
 }
@@ -20,6 +22,7 @@ const ViewEmoji = ({
   index,
   handlePressEmoji,
   showModal,
+  animIconMoreEmoji,
   handlePressMoreEmoji,
 }: EmojiProps) => {
   return (
@@ -39,8 +42,11 @@ const ViewEmoji = ({
       <TouchableOpacity
         onPress={() => handlePressMoreEmoji()}
         style={styles.touchMoreEmoji}>
-        <Image
-          style={{height: showModal ? 20 : 0, width: showModal ? 20 : 0}}
+        <Animated.Image
+          style={{
+            height: animIconMoreEmoji,
+            width: showModal ? 20 : 0,
+          }}
           source={require('../assets/icon/add.png')}
         />
         {/* <Svg height="24px" viewBox="0 0 24 24" width="24px" fill="#000000">
@@ -70,7 +76,7 @@ const styles = StyleSheet.create({
   },
   touchMoreEmoji: {
     backgroundColor: '#FFFFFF',
-    padding: 3,
+    // padding: 3,
     borderRadius: 15,
     marginLeft: 8,
   },

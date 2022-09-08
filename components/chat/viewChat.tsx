@@ -3,11 +3,8 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import React, {useRef} from 'react';
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {RootStackParams} from './test-chat';
-import BottomSheet, {BottomSheetView} from '@gorhom/bottom-sheet';
 
 const ViewChat = () => {
-  const sheetRef = useRef<BottomSheet>(null);
-
   const snapPoints = ['10%', '50%', '90%'];
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParams>>();
@@ -23,11 +20,6 @@ const ViewChat = () => {
         style={styles.button}>
         <Text>DemoWebrtc</Text>
       </TouchableOpacity>
-      <BottomSheet ref={sheetRef} snapPoints={snapPoints}>
-        <BottomSheetView>
-          <Text>example</Text>
-        </BottomSheetView>
-      </BottomSheet>
     </View>
   );
 };
