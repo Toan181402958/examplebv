@@ -14,6 +14,7 @@ import {
   View,
 } from 'react-native';
 import {
+  Actions,
   ActionsProps,
   ComposerProps,
   GiftedChat,
@@ -33,9 +34,7 @@ import {GIFTED_CHAT_BACKGROUND, GIFTED_CHAT_SPACES} from './components/utils';
 import ViewActionBottom from './components/viewActionBottom';
 import ViewEmoji from './components/viewEmoji';
 import viewTabBar from './components/viewTabBar';
-import ViewTabBar from './components/viewTabBar';
 import messages1, {messageDefault} from './data';
-import {message2} from './data2';
 import {IMessage, UserSeen} from './model';
 import {RootStackParams} from './test-chat';
 import Animated1, {
@@ -44,13 +43,10 @@ import Animated1, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
-import {
-  Gesture,
-  GestureDetector,
-  GestureHandlerRootView,
-} from 'react-native-gesture-handler';
+import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import BottomSheet from './components/viewBottomSheet';
 import viewInputToolBar from './components/viewInputToolBar';
+import ViewCustomInputToolBar from './components/viewCustomInputToolBar';
 
 const {height: SCREEN_HEIGHT} = Dimensions.get('window');
 
@@ -95,13 +91,56 @@ const Chat = () => {
   const translateY = useSharedValue(0);
   const animMoreEmoji = useRef(new Animated.Value(0)).current;
   const animIconMoreEmoji = useRef(new Animated.Value(0)).current;
-
   const animTouchBottomSheet = useRef(new Animated.Value(0)).current;
+  const refMoreAction = useRef(null);
+  const [statusMoreAction, setStatusMoreAction] = useState(false);
+  //state height input tool bar
+  const [heightViewInput, setHeightViewInput] = useState(40);
 
+  //reanimated more action
+  const maxWidthMoreAction = useSharedValue(0);
+  const animatedMoreAction = useAnimatedStyle(() => {
+    return {
+      maxWidth: maxWidthMoreAction.value,
+    };
+  });
+  //reanimated icon action
+  const sizeIconAction = useSharedValue(0);
+  const animatedIconAction = useAnimatedStyle(() => {
+    return {
+      height: sizeIconAction.value,
+      width: sizeIconAction.value,
+    };
+  });
+
+  //reanimated icon arrow action
+  const hideArrowIconACtion = useSharedValue(16);
+  const animatedArrowIcon = useAnimatedStyle(() => {
+    return {
+      height: hideArrowIconACtion.value,
+      width: hideArrowIconACtion.value,
+    };
+  });
+  const hideViewArrowIcon = useSharedValue(100);
+  const animatedViewArrowIcon = useAnimatedStyle(() => {
+    return {
+      maxWidth: hideViewArrowIcon.value,
+    };
+  });
+
+  //reanimated bottomsheet more emoji
   const topMoreEmoji = useSharedValue(SCREEN_HEIGHT);
   const styleMoreEmoji = useAnimatedStyle(() => {
     return {
       top: topMoreEmoji.value,
+    };
+  });
+
+  //reanimated custom input tool bar
+  const sizeIconHide = useSharedValue(0);
+  const styleIconHide = useAnimatedStyle(() => {
+    return {
+      height: sizeIconHide.value,
     };
   });
 
@@ -263,16 +302,33 @@ const Chat = () => {
     return <RenderSend props={props} />;
   };
 
+  //render compose
   const renderComposer = (props: ComposerProps) => {
     return <ChatComposer {...props} />;
+  };
+
+  //handle action
+  const handleMoreAction = () => {
+    console.log('ref: ');
+    maxWidthMoreAction.value = withTiming(100, {duration: 500});
+    sizeIconAction.value = withTiming(25, {duration: 500});
+    hideArrowIconACtion.value = withTiming(0, {duration: 100});
+    hideViewArrowIcon.value = withTiming(0, {duration: 100});
   };
 
   const renderActions = (action: ActionsProps) => {
     return (
       <RenderActions
+        animatedViewArrowIcon={animatedViewArrowIcon}
+        animatedArrowIcon={animatedArrowIcon}
+        animatedIconAction={animatedIconAction}
+        animatedMoreAction={animatedMoreAction}
+        statusMoreAction={statusMoreAction}
+        refMoreAction={refMoreAction}
         action={action}
-        handleOpenAttachment={null}
+        handleOpenAttachment={() => console.log('attachment')}
         handleOpenGallery={null}
+        handleMoreAction={handleMoreAction}
       />
     );
   };
@@ -356,7 +412,6 @@ const Chat = () => {
 
     topMoreEmoji.value = withTiming(SCREEN_HEIGHT / 2, {duration: 300});
   };
-
   const handleCloseMoreEmoji = () => {
     Animated.timing(animTouchBottomSheet, {
       toValue: 0,
@@ -364,6 +419,11 @@ const Chat = () => {
       useNativeDriver: false,
     }).start();
     topMoreEmoji.value = withTiming(SCREEN_HEIGHT, {duration: 300});
+  };
+
+  //handle on change text input composer
+  const handleChangeTextInput = (text: string) => {
+    console.log(text);
   };
 
   return (
@@ -380,7 +440,8 @@ const Chat = () => {
             _id: 1,
           }}
           // renderMessage={props => renderMessage(props, listtest)}
-          renderInputToolbar={input => viewInputToolBar(input)}
+          // renderInputToolbar={input => renderInputToolbar(input)}
+          renderInputToolbar={() => <></>}
           renderActions={action => renderActions(action)}
           renderSend={send => renderSend(send)}
           renderComposer={props => renderComposer(props)}
@@ -394,6 +455,7 @@ const Chat = () => {
           //     handleOnLongPress={handleOnLongPressMessageText}
           //   />
           // )}
+          onInputTextChanged={handleChangeTextInput}
           renderBubble={props => (
             <RenderBubble
               props={props}
@@ -424,10 +486,9 @@ const Chat = () => {
           isTyping
           renderAvatarOnTop
           infiniteScroll
+          minInputToolbarHeight={0}
           onLongPress={(context: any, message: IMessage) => {
             console.log('onlongpress', context, 'message: ', message);
-            // handleSizeBottomBar(message);
-            // setReplyMessage(message);
           }}
           parsePatterns={linkStyle => [
             //Type: Link, phone, email
@@ -475,6 +536,12 @@ const Chat = () => {
             },
             scrollEventThrottle: 16,
           }}
+        />
+
+        {/*custom input tool bar*/}
+        <ViewCustomInputToolBar
+          placeholder="Typing a message..."
+          styleIconHide={styleIconHide}
         />
         <Animated.View
           style={{
@@ -524,11 +591,11 @@ const Chat = () => {
             handlePressEmoji={handlePressEmoji}
             handlePressMoreEmoji={handlePressMoreEmoji}
           />
-          {/* <ViewActionBottom
+          <ViewActionBottom
             animBotBar={animBotBar}
             handleCloseView={handleCloseView}
             handleReply={handleReply}
-          /> */}
+          />
           <Animated.View
             style={{
               width: '100%',
