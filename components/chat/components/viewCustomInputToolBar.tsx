@@ -1,6 +1,8 @@
 import React from 'react';
 import {
   Image,
+  Keyboard,
+  ScrollView,
   StyleSheet,
   TextInput,
   TouchableOpacity,
@@ -11,46 +13,74 @@ import Animated from 'react-native-reanimated';
 interface ViewCustomInputProps {
   placeholder: string;
   styleIconHide: any;
+  styleIconAction: any;
+  inputCustom: string;
+  refInputCustom: any;
+  statusSend: boolean;
+  changeTextInputCustom: (text: string) => void;
+  onSendCustomInput: () => void;
+  onPressEmojiCustomInput: () => void;
+  showIconAction: () => void;
+  hideIconAction: () => void;
+  onPressGalleryCustom: () => void;
 }
 const ViewCustomInputToolBar = ({
   placeholder,
   styleIconHide,
+  styleIconAction,
+  inputCustom,
+  refInputCustom,
+  statusSend,
+  changeTextInputCustom,
+  onSendCustomInput,
+  onPressEmojiCustomInput,
+  showIconAction,
+  hideIconAction,
+  onPressGalleryCustom,
 }: ViewCustomInputProps) => {
   return (
     <View style={[styles.container]}>
       <View style={{flexDirection: 'row', alignItems: 'center'}}>
         <TouchableOpacity>
           <Animated.Image
-            style={styles.icon}
+            style={[styles.icon, styleIconAction]}
             source={require('../assets/icon/attachment.png')}
           />
         </TouchableOpacity>
-        <TouchableOpacity>
-          <Image
-            style={styles.icon}
+        <TouchableOpacity onPress={onPressGalleryCustom}>
+          <Animated.Image
+            style={[styles.icon, styleIconAction]}
             source={require('../assets/icon/gallery.png')}
           />
         </TouchableOpacity>
-        <TouchableOpacity>
-          <Image
-            style={[styles.iconHide]}
-            source={require('../assets/icon/back.png')}
+        <TouchableOpacity onPress={showIconAction}>
+          <Animated.Image
+            style={[styles.iconHide, styleIconHide]}
+            source={require('../assets/icon/right_arrow.png')}
           />
         </TouchableOpacity>
       </View>
       <TextInput
-        //   onFocus={e => setOpenViewFile()}
-        //   onBlur={e => setCloseViewFile()}
-        //   onChangeText={text => handleChangeInput(text)}
+        onFocus={hideIconAction}
+        onBlur={showIconAction}
+        ref={refInputCustom}
+        onChangeText={changeTextInputCustom}
         multiline
         style={styles.textInput}
         placeholder={placeholder}
-        //   onSubmitEditing={Keyboard.dismiss}
+        blurOnSubmit
+        keyboardType="ascii-capable"
+        onSubmitEditing={Keyboard.dismiss}
       />
-      <TouchableOpacity>
+      <TouchableOpacity
+        onPress={statusSend ? onSendCustomInput : onPressEmojiCustomInput}>
         <Image
-          style={[styles.icon, {marginStart: 10, marginEnd: 5}]}
-          source={require('../assets/icon/send_message.png')}
+          style={[styles.icon]}
+          source={
+            statusSend
+              ? require('../assets/icon/send_message.png')
+              : require('../assets/icon/smile.png')
+          }
         />
       </TouchableOpacity>
     </View>
@@ -63,6 +93,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 2,
+    backgroundColor: 'white',
+    paddingEnd: 8,
   },
   textInput: {
     width: 200,
@@ -73,16 +105,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     maxHeight: 80,
     flex: 1,
+    marginHorizontal: 8,
   },
   icon: {
     height: 25,
     width: 25,
-    marginStart: 5,
   },
   iconHide: {
     height: 20,
     width: 20,
-    marginHorizontal: 10,
   },
 });
 

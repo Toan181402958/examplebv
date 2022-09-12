@@ -1,5 +1,11 @@
 import React from 'react';
-import {FlatList, Image, TouchableOpacity, View} from 'react-native';
+import {
+  FlatList,
+  Image,
+  TouchableOpacity,
+  View,
+  TouchableHighlight,
+} from 'react-native';
 import {IMessage} from '../../model';
 import {GIFTED_CHAT_BACKGROUND, GIFTED_CHAT_IMAGE} from '../utils';
 
@@ -72,7 +78,7 @@ const RenderMessageImage = ({props, handleOnLongPress}: MessageImageProp) => {
     }
   };
   return (
-    <TouchableOpacity
+    <TouchableHighlight
       onLongPress={() => handleOnLongPress(props.currentMessage)}>
       <View
         style={{
@@ -145,7 +151,7 @@ const RenderMessageImage = ({props, handleOnLongPress}: MessageImageProp) => {
           );
         })}
       </View>
-    </TouchableOpacity>
+    </TouchableHighlight>
   );
 };
 
