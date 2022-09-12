@@ -10,7 +10,9 @@ import {
   Linking,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
+  TouchableHighlight,
   View,
 } from 'react-native';
 import {
@@ -47,6 +49,7 @@ import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import BottomSheet from './components/viewBottomSheet';
 import viewInputToolBar from './components/viewInputToolBar';
 import ViewCustomInputToolBar from './components/viewCustomInputToolBar';
+import ViewOptionsGallery from './components/viewOptionsGallery';
 
 const {height: SCREEN_HEIGHT} = Dimensions.get('window');
 
@@ -96,6 +99,10 @@ const Chat = () => {
   const [statusMoreAction, setStatusMoreAction] = useState(false);
   //state height input tool bar
   const [heightViewInput, setHeightViewInput] = useState(40);
+  //text change input custom
+  const [inputCustom, setInputCustom] = useState('');
+  const [statusSend, setStatusSend] = useState(false);
+  const refInputCustom = useRef<any>(null);
 
   //reanimated more action
   const maxWidthMoreAction = useSharedValue(0);
@@ -105,11 +112,11 @@ const Chat = () => {
     };
   });
   //reanimated icon action
-  const sizeIconAction = useSharedValue(0);
+  const sizeIconActionComposer = useSharedValue(0);
   const animatedIconAction = useAnimatedStyle(() => {
     return {
-      height: sizeIconAction.value,
-      width: sizeIconAction.value,
+      height: sizeIconActionComposer.value,
+      width: sizeIconActionComposer.value,
     };
   });
 
@@ -137,12 +144,35 @@ const Chat = () => {
   });
 
   //reanimated custom input tool bar
+  ////icon hide
   const sizeIconHide = useSharedValue(0);
-  const styleIconHide = useAnimatedStyle(() => {
+  const marginStartIconHide = useSharedValue(0);
+  const styleIconHide1 = useAnimatedStyle(() => {
     return {
       height: sizeIconHide.value,
+      width: sizeIconHide.value,
+      marginStart: marginStartIconHide.value,
     };
   });
+  ////view action
+  const sizeIconAction = useSharedValue(25);
+  const marginStartIconAction = useSharedValue(8);
+  const styleIconAction = useAnimatedStyle(() => {
+    return {
+      height: sizeIconAction.value,
+      width: sizeIconAction.value,
+      marginStart: marginStartIconAction.value,
+    };
+  });
+
+  //reanimated view options gallery
+  const heightOptionsGallery = useSharedValue(0);
+  const styleOptionsGallery = useAnimatedStyle(() => {
+    return {
+      height: heightOptionsGallery.value,
+    };
+  });
+  const animBottomOptionsGallery = useRef(new Animated.Value(0)).current;
 
   const handleFooter = () => {
     Animated.timing(animFooter, {
@@ -244,6 +274,7 @@ const Chat = () => {
     giftedChatref.current?.textInput?.focus();
     console.log('onpress tra loi');
     setIsReply(true);
+    refInputCustom.current.focus();
   };
 
   const handleScrollCustom = () => {
@@ -275,6 +306,7 @@ const Chat = () => {
   }, []);
 
   const onSend = (newMessages: Array<IMessage>) => {
+    console.log('onsend: ', newMessages);
     var newMessagesChat = [
       {
         _id: newMessages[0]._id,
@@ -302,6 +334,33 @@ const Chat = () => {
     return <RenderSend props={props} />;
   };
 
+  //onsend in custom input
+  const onSendCustomInput = () => {
+    let user = {
+      _id: 1,
+    };
+    let newMessage = {} as any;
+    const newmessages = [] as Array<any>;
+    newMessage['createdAt'] = new Date(Date.now());
+    newMessage['_id'] = (Date.now() * Math.random()).toString();
+    newMessage['user'] = user;
+    newMessage['text'] = inputCustom;
+    newMessage['listUserSeen'] = [] as Array<UserSeen>;
+    newMessage['isReply'] = isReply;
+    newMessage['messageReply'] = replyMessage;
+    newmessages.push(newMessage);
+    setMessages(prevMessages => GiftedChat.append(prevMessages, newmessages));
+    refInputCustom?.current.clear();
+    handleHideFooter();
+    setIsReply(false);
+    setStatusSend(false);
+  };
+
+  //onpress emoji custom input
+  const onPressEmojiCustomInput = () => {
+    console.log('onpress emoji');
+  };
+
   //render compose
   const renderComposer = (props: ComposerProps) => {
     return <ChatComposer {...props} />;
@@ -311,7 +370,7 @@ const Chat = () => {
   const handleMoreAction = () => {
     console.log('ref: ');
     maxWidthMoreAction.value = withTiming(100, {duration: 500});
-    sizeIconAction.value = withTiming(25, {duration: 500});
+    sizeIconActionComposer.value = withTiming(25, {duration: 500});
     hideArrowIconACtion.value = withTiming(0, {duration: 100});
     hideViewArrowIcon.value = withTiming(0, {duration: 100});
   };
@@ -421,9 +480,40 @@ const Chat = () => {
     topMoreEmoji.value = withTiming(SCREEN_HEIGHT, {duration: 300});
   };
 
-  //handle on change text input composer
-  const handleChangeTextInput = (text: string) => {
+  //handle on change text input custom
+  const changeTextInputCustom = (text: string) => {
     console.log(text);
+    setInputCustom(text);
+    if (text != '') {
+      setStatusSend(true);
+      hideIconAction();
+    } else {
+      setStatusSend(false);
+      showIconAction();
+    }
+  };
+  const onPressGalleryCustom = () => {
+    console.log('onpress gallery');
+    heightOptionsGallery.value = withTiming(200, {duration: 200});
+    Animated.timing(animBottomOptionsGallery, {
+      toValue: 1,
+      duration: 10,
+      useNativeDriver: false,
+    }).start();
+  };
+
+  //function show / hide icon action
+  const showIconAction = () => {
+    sizeIconAction.value = withTiming(25, {duration: 200});
+    marginStartIconAction.value = withTiming(8, {duration: 150});
+    sizeIconHide.value = withTiming(0, {duration: 150});
+    marginStartIconHide.value = withTiming(0, {duration: 150});
+  };
+  const hideIconAction = () => {
+    sizeIconHide.value = withTiming(20, {duration: 200});
+    marginStartIconHide.value = withTiming(8, {duration: 200});
+    sizeIconAction.value = withTiming(0, {duration: 150});
+    marginStartIconAction.value = withTiming(0, {duration: 200});
   };
 
   return (
@@ -448,14 +538,7 @@ const Chat = () => {
           renderLoading={() => renderLoading()}
           loadEarlier={false}
           renderLoadEarlier={renderLoadEarlier}
-          // renderMessageText={props => (
-          //   <RenderMessageText
-          //     props={props}
-          //     handleOnpressMessageText={handleOnpressMessageText}
-          //     handleOnLongPress={handleOnLongPressMessageText}
-          //   />
-          // )}
-          onInputTextChanged={handleChangeTextInput}
+          // onInputTextChanged={handleChangeTextInput}
           renderBubble={props => (
             <RenderBubble
               props={props}
@@ -516,6 +599,9 @@ const Chat = () => {
           ]}
           listViewProps={{
             //onScroll gifted chat
+            onTouchEnd: () => {
+              refInputCustom.current.blur();
+            },
             onScroll: (e: any) => {
               if (e.nativeEvent.contentOffset.y > 30) {
                 handleShowScroll();
@@ -541,7 +627,17 @@ const Chat = () => {
         {/*custom input tool bar*/}
         <ViewCustomInputToolBar
           placeholder="Typing a message..."
-          styleIconHide={styleIconHide}
+          styleIconHide={styleIconHide1}
+          styleIconAction={styleIconAction}
+          inputCustom={inputCustom}
+          refInputCustom={refInputCustom}
+          statusSend={statusSend}
+          changeTextInputCustom={changeTextInputCustom}
+          onSendCustomInput={onSendCustomInput}
+          onPressEmojiCustomInput={onPressEmojiCustomInput}
+          showIconAction={showIconAction}
+          hideIconAction={hideIconAction}
+          onPressGalleryCustom={onPressGalleryCustom}
         />
         <Animated.View
           style={{
@@ -611,6 +707,38 @@ const Chat = () => {
               handleCloseMoreEmoji={handleCloseMoreEmoji}
             />
           </Animated.View>
+        </Animated.View>
+        <Animated.View
+          style={{
+            flex: 1,
+            position: 'absolute',
+            bottom: 0,
+            height: animBottomOptionsGallery.interpolate({
+              inputRange: [0, 1],
+              outputRange: ['0%', '100%'],
+            }),
+            width: '100%',
+            flexDirection: 'column-reverse',
+          }}>
+          <TouchableOpacity
+            onPress={() => {
+              Animated.timing(animBottomOptionsGallery, {
+                toValue: 0,
+                duration: 10,
+                useNativeDriver: false,
+              }).start();
+              console.log('here');
+              heightOptionsGallery.value = withTiming(0, {duration: 200});
+            }}
+            style={{
+              position: 'absolute',
+              height: '100%',
+              width: '100%',
+            }}></TouchableOpacity>
+          <ViewOptionsGallery
+            styleOptionsGallery={styleOptionsGallery}
+            heightOptionsGallery={heightOptionsGallery}
+          />
         </Animated.View>
       </View>
     </GestureHandlerRootView>
