@@ -72,9 +72,18 @@ export enum GALLERY_BOTTOMSHEET {
 
 //custom scrollbar
 export enum GIFTED_CHAT_SCROLLBAR {
-  WIDTH = 5,
-  HEIGHT = 40,
-  BORDER_RADIUS = 8,
+  WIDTH = '5',
+  HEIGHT = '40',
+  BORDER_RADIUS = '15',
+  MIN_HEIGHT = '10',
+  BACKGROUND = 'grey',
+  HEIGHT_VIEW_TEXT = '16',
+  PADDINGhORIZOTAL_VIEW_TEXT = '10',
+  BORDER_VIEW_TEXT = '8',
+  MARGIN_RIGHT_VIEW_TEXT = '4',
+  BACKGROUND_VIEW_TEXT = 'grey',
+  FONTSIZE_TEXT = '10',
+  COLOR_TEXT = 'black',
 }
 
 export const isFirstOfGroup = (
@@ -161,3 +170,8 @@ export const isFirstOfGroupTime = (timeCurrent: any, timePrevious: any) => {
   }
   return false;
 };
+
+//example scroll bar value
+export const listMessageScrollDemo = [] as Array<any>;
+export const element = {} as any;
+export const listIndex = [] as Array<number>;

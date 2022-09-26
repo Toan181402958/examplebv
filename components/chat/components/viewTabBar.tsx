@@ -3,12 +3,16 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import React from 'react';
 import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {RootStackParams} from '../test-chat';
+import {element, listIndex, listMessageScrollDemo} from './utils';
 
 //#0091FF
 const viewTabBar = (
   clickExample: () => void,
   clickCamera: () => void,
   setMessages: any,
+  listMessageSCroll: Array<number>,
+  listTextDateScroll: any,
+  listMessageDateScroll: any,
 ) => {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParams>>();
@@ -27,7 +31,27 @@ const viewTabBar = (
         <TouchableOpacity
           onPress={() => {
             clickExample();
-            console.log('onpress call');
+            const listfinal = listMessageDateScroll.current
+              .map((e: any, index: any) => {
+                return index >= listTextDateScroll.current[0] &&
+                  index <=
+                    listTextDateScroll.current[
+                      listTextDateScroll.current.length - 1
+                    ]
+                  ? e
+                  : -1;
+              })
+              .filter((e: any, i: any, a: any) => a.indexOf(e) == i);
+            listfinal.shift();
+            // listfinal.splice(listfinal.indexOf(-2), 1);
+            console.log(
+              'onpress call, listmessagescroll:  ',
+              listfinal,
+              '..list text date scroll: ',
+              listTextDateScroll.current,
+              '..list message date scroll: ',
+              listMessageDateScroll.current,
+            );
           }}>
           <Image
             style={[styles.iconBack, {marginEnd: 10}]}

@@ -10,6 +10,7 @@ import {
   Image,
   Linking,
   StyleSheet,
+  Text,
   TouchableOpacity,
   View,
 } from 'react-native';
@@ -32,6 +33,8 @@ import {
   GALLERY_BOTTOMSHEET,
   GIFTED_CHAT_BACKGROUND,
   GIFTED_CHAT_SCROLLBAR,
+  listIndex,
+  listMessageScrollDemo,
 } from './components/utils';
 import ViewActionBottom from './components/viewActionBottom';
 import ViewEmoji from './components/viewEmoji';
@@ -50,8 +53,7 @@ import viewInputToolBar from './components/viewInputToolBar';
 import ViewCustomInputToolBar from './components/viewCustomInputToolBar';
 import ViewOptionsGallery from './components/viewOptionsGallery';
 import ViewShowGallery from './components/viewBottomGallery/viewShowGallery';
-import {renderMessage} from './components/renderContainer/renderMessage';
-
+import {RenderMessage} from './components/renderContainer/renderMessage';
 const {height: SCREEN_HEIGHT} = Dimensions.get('window');
 
 export var newMessagesChat12 = [
@@ -190,6 +192,10 @@ const Chat = () => {
   //custom scrollbar gifted chat
   const [heightChange, setHeightChange] = useState(1);
   const [heightScreen, setHeightScreen] = useState(0);
+  const [listMessageSCroll, setListMessageScroll] = useState<Array<number>>([]);
+  const [listIndexScroll, setListIndexScroll] = useState<Array<number>>([]);
+  const listTextDateScroll = useRef<any>([]);
+  const listMessageDateScroll = useRef<any>([]);
   const marginAnim = useRef(new Animated.Value(0)).current;
   const sizeScrollBar =
     heightChange > heightScreen
@@ -353,6 +359,7 @@ const Chat = () => {
 
   useEffect(() => {
     setMessages(messages1);
+    listMessageScrollDemo.length = 0;
   }, []);
 
   const onSend = (newMessages: Array<IMessage>) => {
@@ -594,10 +601,29 @@ const Chat = () => {
     hideGalleryBottomSheet(100);
   };
 
+  //onViewableItemsChanged in scroll gifted chat
+  const viewConfigRef = useRef({viewAreaCoveragePercentThreshold: 50});
+  const _onViewableItemsChanged = useRef((viewableItems: any) => {
+    console.log(viewableItems.viewableItems.map((e: any) => e.index));
+    // setListIndexScroll(viewableItems.viewableItems.map((e: any) => e.index));
+    const listViewableItems = viewableItems.viewableItems.map(
+      (e: any) => e.index,
+    );
+    // listIndex.length = 0;
+    // listIndex.push.apply(listIndex, listViewableItems);
+    listTextDateScroll.current = listViewableItems;
+  });
   return (
     <GestureHandlerRootView style={{flex: 1}}>
       <View style={{flex: 1}}>
-        {viewTabBar(clickExample, clickCamera, setMessages)}
+        {viewTabBar(
+          clickExample,
+          clickCamera,
+          setMessages,
+          listMessageSCroll,
+          listTextDateScroll,
+          listMessageDateScroll,
+        )}
         <GiftedChat
           ref={giftedChatref}
           messages={messages}
@@ -607,7 +633,15 @@ const Chat = () => {
           user={{
             _id: 1,
           }}
-          renderMessage={props => renderMessage(props, listtest)}
+          renderMessage={props => (
+            <RenderMessage
+              props={props}
+              listMessageSCroll={listMessageSCroll}
+              setListMessageScroll={setListMessageScroll}
+              listtest={listtest}
+              listMessageDateScroll={listMessageDateScroll}
+            />
+          )}
           // renderInputToolbar={input => renderInputToolbar(input)}
           renderInputToolbar={() => <></>}
           renderActions={action => renderActions(action)}
@@ -677,6 +711,8 @@ const Chat = () => {
           ]}
           listViewProps={{
             //onScroll gifted chat
+            viewabilityConfig: viewConfigRef.current,
+            onViewableItemsChanged: _onViewableItemsChanged.current,
             onTouchStart: () => {
               fadeInScroll();
             },
@@ -685,11 +721,7 @@ const Chat = () => {
               hideGalleryBottomSheet(300);
               fadeOutScroll();
             },
-            onScrollEndDrag: () => {
-              // fadeOutScroll();
-            },
             onMomentumScrollEnd: () => {
-              console.log('scroll stop');
               fadeOutScroll();
             },
             onScroll: Animated.event(
@@ -729,6 +761,7 @@ const Chat = () => {
             onLayout: (e: any) => {
               setHeightScreen(e.nativeEvent.layout.height);
             },
+            showsVerticalScrollIndicator: false,
             scrollEventThrottle: 16,
           }}
         />
@@ -752,13 +785,18 @@ const Chat = () => {
         {/*custom scrollbar */}
         <Animated.View
           style={[
-            styles.scrollbar,
+            styles.scrollbarView,
             {
               height: sizeScrollBar,
               transform: [{translateY: scrollIndicatorPosition}],
               opacity: opacityScroll,
             },
-          ]}></Animated.View>
+          ]}>
+          <View style={styles.viewTextScrollBar}>
+            <Text style={styles.textScrollBar}>Time</Text>
+          </View>
+          <View style={styles.scrollBar} />
+        </Animated.View>
         <Animated.View
           style={{
             opacity: animScroll,
@@ -929,16 +967,39 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  scrollbar: {
-    width: GIFTED_CHAT_SCROLLBAR.WIDTH,
-    borderRadius: GIFTED_CHAT_SCROLLBAR.BORDER_RADIUS,
-    backgroundColor: 'red',
-    height: GIFTED_CHAT_SCROLLBAR.HEIGHT,
+  scrollbarView: {
+    borderRadius: parseInt(GIFTED_CHAT_SCROLLBAR.BORDER_RADIUS),
+    height: parseInt(GIFTED_CHAT_SCROLLBAR.HEIGHT),
     position: 'absolute',
     bottom: 0,
     marginTop: 50,
     marginBottom: 44,
-    right: 0,
+    right: 2,
+    minHeight: parseInt(GIFTED_CHAT_SCROLLBAR.MIN_HEIGHT),
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  scrollBar: {
+    height: '100%',
+    width: parseInt(GIFTED_CHAT_SCROLLBAR.WIDTH),
+    backgroundColor: GIFTED_CHAT_SCROLLBAR.BACKGROUND,
+    borderRadius: parseInt(GIFTED_CHAT_SCROLLBAR.BORDER_RADIUS),
+  },
+  viewTextScrollBar: {
+    height: parseInt(GIFTED_CHAT_SCROLLBAR.HEIGHT_VIEW_TEXT),
+    backgroundColor: GIFTED_CHAT_SCROLLBAR.BACKGROUND_VIEW_TEXT,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: parseInt(
+      GIFTED_CHAT_SCROLLBAR.PADDINGhORIZOTAL_VIEW_TEXT,
+    ),
+    opacity: 0.6,
+    borderRadius: parseInt(GIFTED_CHAT_SCROLLBAR.BORDER_VIEW_TEXT),
+    marginRight: parseInt(GIFTED_CHAT_SCROLLBAR.MARGIN_RIGHT_VIEW_TEXT),
+  },
+  textScrollBar: {
+    fontSize: 10,
+    color: GIFTED_CHAT_SCROLLBAR.COLOR_TEXT,
   },
 });
 

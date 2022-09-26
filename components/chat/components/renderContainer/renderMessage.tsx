@@ -12,18 +12,31 @@ import {
 import {Message, MessageProps} from 'react-native-gifted-chat';
 import {IMessage, UserSeen} from '../../model';
 import {
+  element,
   GIFTED_CHAT_MESSAGE,
   GIFTED_CHAT_SPACES,
   isFirstOfGroup,
   isFirstOFGroupOtherUser,
   isLastOfGroup,
   isLastOfGroupTime,
+  listMessageScrollDemo,
 } from '../utils';
 
-export const renderMessage = (
-  props: Readonly<MessageProps<IMessage>>,
-  listtest: number,
-) => {
+interface RenderMessageProps {
+  props: Readonly<MessageProps<IMessage>>;
+  listtest: number;
+  listMessageSCroll: Array<number>;
+  setListMessageScroll: any;
+  listMessageDateScroll: any;
+}
+
+export const RenderMessage = ({
+  props,
+  listtest,
+  listMessageSCroll,
+  setListMessageScroll,
+  listMessageDateScroll,
+}: RenderMessageProps) => {
   const current = props.currentMessage as IMessage;
   const minuteCurrent = new Date(moment(current?.createdAt).toString());
   const minutePrevious = new Date(
@@ -118,8 +131,10 @@ export const renderMessage = (
   return (
     <View
       style={{width: '100%'}}
-      // onLayout={e => console.log('render message on layout: ', e.nativeEvent)}
-    >
+      onLayout={e => {
+        listMessageDateScroll.current.push(e.nativeEvent.layout.height);
+        console.log('render message on layout: ', e.nativeEvent);
+      }}>
       <Message
         {...props}
         containerStyle={{
