@@ -62,6 +62,21 @@ const messageLast = messages1[messages1.length - 1];
 
 export const GIFTED_CHAT_BACKGROUND = '#FFFFFF';
 
+//value reanimated gallery
+export enum GALLERY_BOTTOMSHEET {
+  HEIGHT_BOTTOMSHEET = 200,
+  HEIGHT_HEADER = 30,
+  MIN_HEIGHT_DONE = 0,
+  STARTING_POSITION = 0,
+}
+
+//custom scrollbar
+export enum GIFTED_CHAT_SCROLLBAR {
+  WIDTH = 5,
+  HEIGHT = 40,
+  BORDER_RADIUS = 8,
+}
+
 export const isFirstOfGroup = (
   timeCurrent: any,
   timePrevious: any,

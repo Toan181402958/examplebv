@@ -97,6 +97,10 @@ const ViewFile = ({id}: Props) => {
     console.log('new list: ', list);
   };
 
+  const handleLog = (e: any) => {
+    console.log(e);
+  };
+
   return (
     <View style={styles.container}>
       <View style={{flex: 9, alignItems: 'center', justifyContent: 'center'}}>
@@ -149,8 +153,7 @@ const ViewFile = ({id}: Props) => {
           onContentSizeChange={(w, h) => {
             setWidthchange(w);
           }}
-          onScrollEndDrag={e => {
-            console.log('scroll end Drag: ');
+          onMomentumScrollEnd={e => {
             fadeOut();
           }}
           onScrollAnimationEnd={() => console.log('end')}
@@ -166,6 +169,9 @@ const ViewFile = ({id}: Props) => {
             ],
             {
               useNativeDriver: false,
+              listener: e => {
+                handleLog(e.nativeEvent);
+              },
             },
           )}
           scrollEventThrottle={16}>
@@ -197,7 +203,7 @@ const ViewFile = ({id}: Props) => {
             height: 5,
             transform: [{translateX: scrollIndicatorPosition}],
             // marginStart: scrollIndicatorPosition,
-            backgroundColor: '#FF0000',
+            backgroundColor: 'blue',
           }}
         />
       </View>

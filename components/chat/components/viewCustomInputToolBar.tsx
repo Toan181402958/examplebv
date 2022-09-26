@@ -23,6 +23,7 @@ interface ViewCustomInputProps {
   showIconAction: () => void;
   hideIconAction: () => void;
   onPressGalleryCustom: () => void;
+  onPressFileCustom: () => void;
 }
 const ViewCustomInputToolBar = ({
   placeholder,
@@ -37,11 +38,12 @@ const ViewCustomInputToolBar = ({
   showIconAction,
   hideIconAction,
   onPressGalleryCustom,
+  onPressFileCustom,
 }: ViewCustomInputProps) => {
   return (
     <View style={[styles.container]}>
       <View style={{flexDirection: 'row', alignItems: 'center'}}>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={onPressFileCustom}>
           <Animated.Image
             style={[styles.icon, styleIconAction]}
             source={require('../assets/icon/attachment.png')}

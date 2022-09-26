@@ -59,7 +59,6 @@ const RenderBubble = ({
     refBubble.current == current._id;
     // handleChild(current._id);
     setlisttest(current._id);
-    console.log(listtest);
   };
 
   const handleOnLongPressMessageText = (e: IMessage) => {

@@ -830,7 +830,7 @@ const messages1 = [
     type: 'text',
   },
   {
-    _id: Date.now() * Math.random(),
+    _id: 1987,
     text: 'reat natifdkasjhd cdskn 13:09 22/8',
     createdAt: new Date(2022, 7, 22, 13, 9, 0),
     user: {
@@ -847,7 +847,7 @@ const messages1 = [
     type: 'text',
   },
   {
-    _id: Date.now() * Math.random(),
+    _id: 1989,
     text: 'reat natifdkasjhd cdskn 13:10 22/8',
     createdAt: new Date(2022, 7, 22, 13, 10, 0),
     user: {
@@ -864,7 +864,7 @@ const messages1 = [
     type: 'text',
   },
   {
-    _id: Date.now() * Math.random(),
+    _id: 1990,
     text: 'reat natifdkasjhd cdskn 13:15 22/8',
     createdAt: new Date(2022, 7, 22, 13, 15, 0),
     user: {
@@ -881,7 +881,7 @@ const messages1 = [
     type: 'text',
   },
   {
-    _id: Date.now() * Math.random(),
+    _id: 1991,
     text: 'reat nkfhsd cdskn 13:19 22/8',
     createdAt: new Date(2022, 7, 22, 13, 19, 0),
     user: {
@@ -897,7 +897,7 @@ const messages1 = [
     type: 'text',
   },
   {
-    _id: Date.now() * Math.random(),
+    _id: 1992,
     text: 'reat nkfhsd cdskn 13:20 22/8',
     createdAt: new Date(2022, 7, 22, 13, 20, 0),
     user: {
@@ -913,7 +913,7 @@ const messages1 = [
     type: 'text',
   },
   {
-    _id: Date.now() * Math.random(),
+    _id: 1993,
     text: 'reat nkfhsd cdskn 13:30 22/8',
     createdAt: new Date(2022, 7, 22, 13, 30, 0),
     user: {
@@ -929,7 +929,7 @@ const messages1 = [
     type: 'text',
   },
   {
-    _id: Date.now() * Math.random(),
+    _id: 1994,
     text: 'reat nkfhsd cdskn 13:30 22/8',
     createdAt: new Date(2022, 7, 22, 13, 30, 0),
     user: {
@@ -945,7 +945,7 @@ const messages1 = [
     type: 'text',
   },
   {
-    _id: Date.now() * Math.random(),
+    _id: 1995,
     text: 'reat nkfhsd cdskn 13:40 22/8',
     createdAt: new Date(2022, 7, 22, 13, 40, 0),
     user: {
@@ -961,7 +961,7 @@ const messages1 = [
     type: 'text',
   },
   {
-    _id: Date.now() * Math.random(),
+    _id: 1996,
     text: 'reat nkfhsd cdskn 13:41 22/8',
     createdAt: new Date(2022, 7, 22, 13, 41, 0),
     user: {
@@ -977,7 +977,7 @@ const messages1 = [
     type: 'text',
   },
   {
-    _id: Date.now() * Math.random(),
+    _id: 1997,
     text: 'reat nkfhsd cdskn 14:30 22/8',
     createdAt: new Date(2022, 7, 22, 14, 30, 0),
     user: {
@@ -993,7 +993,7 @@ const messages1 = [
     type: 'text',
   },
   {
-    _id: Date.now() * Math.random(),
+    _id: 1998,
     text: 'reat nkfhsd cdskn 14:31 22/8',
     createdAt: new Date(2022, 7, 22, 14, 31, 0),
     user: {
@@ -1077,7 +1077,7 @@ const messages1 = [
     type: 'text',
   },
   {
-    _id: 2001,
+    _id: 2000,
     text: 'reat nkfhsd cdskn 15:35 22/8',
     createdAt: new Date(2022, 7, 22, 15, 35, 0),
     user: {
@@ -1100,7 +1100,7 @@ const messages1 = [
     type: 'text',
   },
   {
-    _id: 2002,
+    _id: 2001,
     text: 'one piece 7:3 24/8',
     createdAt: new Date(2022, 7, 24, 7, 30, 0),
     user: {
@@ -1116,7 +1116,7 @@ const messages1 = [
     type: 'text',
   },
   {
-    _id: 2000,
+    _id: 2002,
     createdAt: new Date(2022, 7, 25, 10, 30, 0),
     user: {
       _id: 1,

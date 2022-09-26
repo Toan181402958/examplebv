@@ -1,4 +1,4 @@
-import React, {useRef, useState} from 'react';
+import React, {useCallback, useRef, useState} from 'react';
 import {
   Animated,
   Easing,
@@ -18,6 +18,7 @@ const ViewFlatlist = () => {
   const [heightScreen, setHeightScreen] = useState(0);
   const opacity = useRef(new Animated.Value(0)).current;
   const [test, setTest] = useState(0);
+  const itemVisiblePercentThreshold = useRef(50);
 
   const sizeScrollBar =
     heightChange > heightScreen
@@ -58,19 +59,29 @@ const ViewFlatlist = () => {
     // setTest(e.nativeEvent.contentOffset.y);
     // console.log('e: ', e.nativeEvent);
   };
+  const _onViewableItemsChanged = useCallback(
+    (viewableItems: any, changed: any) => {
+      console.log('Visible items are', viewableItems);
+      console.log('changed: ', changed);
+    },
+    [],
+  );
+
   return (
     <View style={styles.container}>
       <View style={styles.viewList}>
         <FlatList
           contentContainerStyle={{paddingRight: 14}}
           showsVerticalScrollIndicator={false}
+          onViewableItemsChanged={_onViewableItemsChanged}
+          // viewabilityConfig={itemVisiblePercentThreshold.current}
           onScrollBeginDrag={e => {}}
           onResponderStart={e => {
-            console.log('responder: ');
+            // console.log('responder: ');
           }}
           onTouchStart={e => {
             fadeIn();
-            console.log('start: ');
+            // console.log('start: ');
           }}
           onLayout={e => {
             setHeightScreen(e.nativeEvent.layout.height);
@@ -79,10 +90,10 @@ const ViewFlatlist = () => {
             setHeightchange(h);
           }}
           onScrollEndDrag={e => {
-            console.log('scroll end: ', e.nativeEvent);
+            // console.log('scroll end: ', e.nativeEvent);
             fadeOut();
           }}
-          onScrollAnimationEnd={() => console.log('end')}
+          onScrollAnimationEnd={() => {}}
           onScroll={Animated.event(
             [
               {

@@ -116,7 +116,10 @@ export const renderMessage = (
     );
   };
   return (
-    <View style={{width: '100%'}}>
+    <View
+      style={{width: '100%'}}
+      // onLayout={e => console.log('render message on layout: ', e.nativeEvent)}
+    >
       <Message
         {...props}
         containerStyle={{
@@ -154,8 +157,8 @@ export const renderMessage = (
           },
         }}
       />
-      {renderListNameUserSeen()}
-      {renderImageUserSeen()}
+      {/* {renderListNameUserSeen()} */}
+      {/* {renderImageUserSeen()} */}
     </View>
   );
 };

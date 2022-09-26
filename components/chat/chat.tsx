@@ -6,13 +6,11 @@ import {
   ActivityIndicator,
   Animated,
   Dimensions,
+  Easing,
   Image,
   Linking,
   StyleSheet,
-  Text,
-  TextInput,
   TouchableOpacity,
-  TouchableHighlight,
   View,
 } from 'react-native';
 import {
@@ -29,18 +27,19 @@ import RenderBubble from './components/renderContainer/renderBubble';
 import RenderChatFooter from './components/renderContainer/renderChatFooter';
 import ChatComposer from './components/renderContainer/renderComposer';
 import {renderDay} from './components/renderContainer/renderDay';
-import {renderMessage} from './components/renderContainer/renderMessage';
-import RenderMessageText from './components/renderContainer/renderMessageText';
 import RenderSend from './components/renderContainer/renderSend';
-import {GIFTED_CHAT_BACKGROUND, GIFTED_CHAT_SPACES} from './components/utils';
+import {
+  GALLERY_BOTTOMSHEET,
+  GIFTED_CHAT_BACKGROUND,
+  GIFTED_CHAT_SCROLLBAR,
+} from './components/utils';
 import ViewActionBottom from './components/viewActionBottom';
 import ViewEmoji from './components/viewEmoji';
 import viewTabBar from './components/viewTabBar';
 import messages1, {messageDefault} from './data';
 import {IMessage, UserSeen} from './model';
 import {RootStackParams} from './test-chat';
-import Animated1, {
-  Easing,
+import {
   useAnimatedStyle,
   useSharedValue,
   withTiming,
@@ -50,6 +49,8 @@ import BottomSheet from './components/viewBottomSheet';
 import viewInputToolBar from './components/viewInputToolBar';
 import ViewCustomInputToolBar from './components/viewCustomInputToolBar';
 import ViewOptionsGallery from './components/viewOptionsGallery';
+import ViewShowGallery from './components/viewBottomGallery/viewShowGallery';
+import {renderMessage} from './components/renderContainer/renderMessage';
 
 const {height: SCREEN_HEIGHT} = Dimensions.get('window');
 
@@ -174,6 +175,56 @@ const Chat = () => {
   });
   const animBottomOptionsGallery = useRef(new Animated.Value(0)).current;
 
+  //reanimated gallery bottomsheet
+  const [isShowGallery, setisShowGallery] = useState(true);
+  const heightGalleryBottomSheet = useSharedValue(
+    GALLERY_BOTTOMSHEET.STARTING_POSITION,
+  );
+  const styleGalleryBottomSheet = useAnimatedStyle(() => {
+    return {
+      height: heightGalleryBottomSheet.value,
+    };
+  });
+  const translateYGalleryBottomSheet = useSharedValue(SCREEN_HEIGHT);
+
+  //custom scrollbar gifted chat
+  const [heightChange, setHeightChange] = useState(1);
+  const [heightScreen, setHeightScreen] = useState(0);
+  const marginAnim = useRef(new Animated.Value(0)).current;
+  const sizeScrollBar =
+    heightChange > heightScreen
+      ? (heightScreen * heightScreen) / heightChange
+      : 0;
+  const difference =
+    heightScreen > sizeScrollBar ? heightScreen - sizeScrollBar : 1;
+
+  const scrollIndicatorPosition = Animated.multiply(
+    marginAnim,
+    heightScreen / heightChange,
+  ).interpolate({
+    inputRange: [0, difference],
+    outputRange: [0, difference * -1],
+    extrapolate: 'clamp',
+  });
+  const opacityScroll = useRef(new Animated.Value(0)).current;
+  const fadeInScroll = () => {
+    Animated.timing(opacityScroll, {
+      toValue: 1,
+      duration: 100,
+      useNativeDriver: false,
+      easing: Easing.bounce,
+    }).start();
+  };
+
+  const fadeOutScroll = () => {
+    Animated.timing(opacityScroll, {
+      toValue: 0,
+      duration: 500,
+      delay: 500,
+      useNativeDriver: false,
+    }).start();
+  };
+
   const handleFooter = () => {
     Animated.timing(animFooter, {
       toValue: 50,
@@ -286,7 +337,7 @@ const Chat = () => {
 
   const handleShowScroll = () => {
     Animated.timing(animScroll, {
-      toValue: 1,
+      toValue: 0.7,
       duration: 50,
       useNativeDriver: false,
     }).start();
@@ -302,7 +353,6 @@ const Chat = () => {
 
   useEffect(() => {
     setMessages(messages1);
-    console.log('useEffect');
   }, []);
 
   const onSend = (newMessages: Array<IMessage>) => {
@@ -418,20 +468,17 @@ const Chat = () => {
   };
 
   const clickExample = () => {
-    console.log('list: ', listtest);
     setlisttest(2001);
     setIsPressSeen('1');
   };
 
   const clickCamera = () => {
     setlisttest(2000);
-    console.log('ref click camera: ', listtest);
     setIsPressSeen('2');
   };
 
   const handleOnpressMessageText = (e: any) => {
     setlisttest(e);
-    console.log(e);
   };
 
   const handleOnLongPressMessageText = (e: IMessage) => {
@@ -442,7 +489,6 @@ const Chat = () => {
   };
 
   const handleOnPressImageUserSeen = (e: IMessage) => {
-    console.log('onpress img user seen', e._id);
     // setIsPressSeen('2000');
     const newList = messages1.map(val => {
       if (val._id == e._id) {
@@ -456,7 +502,6 @@ const Chat = () => {
 
   //handle click emoji in viewemoji
   const handlePressEmoji = (e: number) => {
-    console.log('index: ', e);
     handleCloseView();
   };
 
@@ -482,7 +527,6 @@ const Chat = () => {
 
   //handle on change text input custom
   const changeTextInputCustom = (text: string) => {
-    console.log(text);
     setInputCustom(text);
     if (text != '') {
       setStatusSend(true);
@@ -493,7 +537,40 @@ const Chat = () => {
     }
   };
   const onPressGalleryCustom = () => {
-    console.log('onpress gallery');
+    console.log('onpress gallery custom');
+
+    heightGalleryBottomSheet.value = withTiming(
+      isShowGallery
+        ? GALLERY_BOTTOMSHEET.HEIGHT_BOTTOMSHEET
+        : GALLERY_BOTTOMSHEET.STARTING_POSITION,
+      {
+        duration: isShowGallery ? 300 : 100,
+      },
+    );
+    translateYGalleryBottomSheet.value = withTiming(
+      isShowGallery ? GALLERY_BOTTOMSHEET.STARTING_POSITION : SCREEN_HEIGHT,
+      {
+        duration: isShowGallery ? 300 : 100,
+      },
+    );
+    setisShowGallery(!isShowGallery);
+    refInputCustom.current.blur();
+  };
+  const hideGalleryBottomSheet = (time: number) => {
+    heightGalleryBottomSheet.value = withTiming(
+      GALLERY_BOTTOMSHEET.STARTING_POSITION,
+      {
+        duration: time,
+      },
+    );
+    translateYGalleryBottomSheet.value = withTiming(SCREEN_HEIGHT, {
+      duration: time,
+    });
+    setisShowGallery(true);
+  };
+
+  const onPressFileCustom = () => {
+    console.log('file');
     heightOptionsGallery.value = withTiming(200, {duration: 200});
     Animated.timing(animBottomOptionsGallery, {
       toValue: 1,
@@ -514,6 +591,7 @@ const Chat = () => {
     marginStartIconHide.value = withTiming(8, {duration: 200});
     sizeIconAction.value = withTiming(0, {duration: 150});
     marginStartIconAction.value = withTiming(0, {duration: 200});
+    hideGalleryBottomSheet(100);
   };
 
   return (
@@ -529,7 +607,7 @@ const Chat = () => {
           user={{
             _id: 1,
           }}
-          // renderMessage={props => renderMessage(props, listtest)}
+          renderMessage={props => renderMessage(props, listtest)}
           // renderInputToolbar={input => renderInputToolbar(input)}
           renderInputToolbar={() => <></>}
           renderActions={action => renderActions(action)}
@@ -599,26 +677,57 @@ const Chat = () => {
           ]}
           listViewProps={{
             //onScroll gifted chat
+            onTouchStart: () => {
+              fadeInScroll();
+            },
             onTouchEnd: () => {
               refInputCustom.current.blur();
+              hideGalleryBottomSheet(300);
+              fadeOutScroll();
             },
-            onScroll: (e: any) => {
-              if (e.nativeEvent.contentOffset.y > 30) {
-                handleShowScroll();
-              } else {
-                handleHideScroll();
-              }
-              if (
-                e.nativeEvent.contentSize.height -
-                  e.nativeEvent.layoutMeasurement -
-                  80 <=
-                e.nativeEvent.contentOffset.y
-              ) {
-                setHideLoadEarlier(true);
-              } else {
-                setHideLoadEarlier(false);
-              }
-              // console.log('on scroll: ', e.nativeEvent);
+            onScrollEndDrag: () => {
+              // fadeOutScroll();
+            },
+            onMomentumScrollEnd: () => {
+              console.log('scroll stop');
+              fadeOutScroll();
+            },
+            onScroll: Animated.event(
+              [
+                {
+                  nativeEvent: {
+                    contentOffset: {
+                      y: marginAnim,
+                    },
+                  },
+                },
+              ],
+              {
+                useNativeDriver: false,
+                listener: (e: any) => {
+                  if (e.nativeEvent.contentOffset.y > 30) {
+                    handleShowScroll();
+                  } else {
+                    handleHideScroll();
+                  }
+                  if (
+                    e.nativeEvent.contentSize.height -
+                      e.nativeEvent.layoutMeasurement -
+                      80 <=
+                    e.nativeEvent.contentOffset.y
+                  ) {
+                    setHideLoadEarlier(true);
+                  } else {
+                    setHideLoadEarlier(false);
+                  }
+                },
+              },
+            ),
+            onContentSizeChange: (w: any, h: any) => {
+              setHeightChange(h);
+            },
+            onLayout: (e: any) => {
+              setHeightScreen(e.nativeEvent.layout.height);
             },
             scrollEventThrottle: 16,
           }}
@@ -638,14 +747,25 @@ const Chat = () => {
           showIconAction={showIconAction}
           hideIconAction={hideIconAction}
           onPressGalleryCustom={onPressGalleryCustom}
+          onPressFileCustom={onPressFileCustom}
         />
+        {/*custom scrollbar */}
+        <Animated.View
+          style={[
+            styles.scrollbar,
+            {
+              height: sizeScrollBar,
+              transform: [{translateY: scrollIndicatorPosition}],
+              opacity: opacityScroll,
+            },
+          ]}></Animated.View>
         <Animated.View
           style={{
             opacity: animScroll,
             height: 40,
             width: 40,
             borderRadius: 20,
-            backgroundColor: 'red',
+            backgroundColor: 'grey',
             position: 'absolute',
             bottom: 100,
             right: 10,
@@ -708,6 +828,7 @@ const Chat = () => {
             />
           </Animated.View>
         </Animated.View>
+        {/*view options gallery test */}
         <Animated.View
           style={{
             flex: 1,
@@ -727,7 +848,6 @@ const Chat = () => {
                 duration: 10,
                 useNativeDriver: false,
               }).start();
-              console.log('here');
               heightOptionsGallery.value = withTiming(0, {duration: 200});
             }}
             style={{
@@ -740,6 +860,10 @@ const Chat = () => {
             heightOptionsGallery={heightOptionsGallery}
           />
         </Animated.View>
+        <ViewShowGallery
+          styleGalleryBottomSheet={styleGalleryBottomSheet}
+          translateYGalleryBottomSheet={translateYGalleryBottomSheet}
+        />
       </View>
     </GestureHandlerRootView>
   );
@@ -804,6 +928,17 @@ const styles = StyleSheet.create({
     backgroundColor: 'grey',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  scrollbar: {
+    width: GIFTED_CHAT_SCROLLBAR.WIDTH,
+    borderRadius: GIFTED_CHAT_SCROLLBAR.BORDER_RADIUS,
+    backgroundColor: 'red',
+    height: GIFTED_CHAT_SCROLLBAR.HEIGHT,
+    position: 'absolute',
+    bottom: 0,
+    marginTop: 50,
+    marginBottom: 44,
+    right: 0,
   },
 });
 
